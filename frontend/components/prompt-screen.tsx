@@ -20,7 +20,7 @@ const QUICK_SUGGESTIONS = [
 ]
 
 export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps) {
-  const [prompt, setPrompt] = useState("")
+  const [prompt, setPrompt] = useState("is this the input text")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleQuickSuggestion = (suggestion: string) => {
@@ -32,17 +32,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
     
     setIsLoading(true)
     try {
-      // Get the ngrok URL from environment variable
-      const ngrokUrl = process.env.NEXT_PUBLIC_NGROK_URL
-      
-      if (!ngrokUrl) {
-        console.error("NEXT_PUBLIC_NGROK_URL is not set in environment variables")
-        alert("Error: API URL not configured. Please set NEXT_PUBLIC_NGROK_URL in your .env.local file")
-        setIsLoading(false)
-        return
-      }
-
-      const response = await fetch(`${ngrokUrl}/api/respond`, {
+      const response = await fetch("https://nonrealistic-ungrimed-luvenia.ngrok-free.dev/api/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: prompt })
@@ -70,7 +60,9 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
     onAnalyze(
       "Provide a comprehensive analysis of this meme including the template, extracted text, humor explanation, and cultural context.",
     )
+    handleAnalyze()
   }
+
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">

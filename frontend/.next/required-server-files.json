@@ -99,7 +99,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/me/Desktop/dev/Memotron/frontend",
+    "outputFileTracingRoot": "/Users/me/Desktop/dev",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -290,12 +290,12 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.mjs",
     "turbopack": {
-      "root": "/Users/me/Desktop/dev/Memotron/frontend"
+      "root": "/Users/me/Desktop/dev"
     },
     "distDirRoot": ".next"
   },
   "appDir": "/Users/me/Desktop/dev/Memotron/frontend",
-  "relativeAppDir": "",
+  "relativeAppDir": "Memotron/frontend",
   "files": [
     ".next/routes-manifest.json",
     ".next/server/pages-manifest.json",
