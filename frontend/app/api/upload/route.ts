@@ -1,19 +1,6 @@
 // app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadToS3, validateFileSize, base64ToBuffer } from '@/lib/s3-upload'
-
-function getContentType(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase()
-  const contentTypes: Record<string, string> = {
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    png: 'image/png',
-    gif: 'image/gif',
-    webp: 'image/webp',
-    bmp: 'image/bmp',
-  }
-  return contentTypes[ext || ''] || 'image/png'
-}
+import { uploadBase64ToStorage, saveMemeUpload } from '@/lib/supabase-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,47 +14,54 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Convert base64 to buffer
-    const imageBuffer = base64ToBuffer(image)
+    // Validate file size (check base64 string length - roughly 10MB)
+    const base64String = image.replace(/^data:image\/\w+;base64,/, '')
+    const estimatedSize = (base64String.length * 3) / 4
+    const maxSize = 10 * 1024 * 1024 // 10MB
 
-    // Validate file size (10MB max)
-    if (!validateFileSize(imageBuffer, 10)) {
+    if (estimatedSize > maxSize) {
       return NextResponse.json(
         { error: 'File too large. Maximum size is 10MB' },
         { status: 400 }
       )
     }
 
-    // Upload to S3
-    const result = await uploadToS3(
-      imageBuffer,
+    // Upload to Supabase Storage
+    const uploadResult = await uploadBase64ToStorage(
+      image,
       filename || 'meme.png',
       userId
     )
 
-    if (!result.success) {
+    if (!uploadResult) {
       return NextResponse.json(
-        { error: result.error || 'Upload failed' },
+        { error: 'Upload to storage failed' },
         { status: 500 }
       )
     }
 
-    // Save to Supabase
-    const { saveMemeUpload } = await import('@/lib/supabase-service')
+    // Save metadata to database
     const upload = await saveMemeUpload({
       userId,
-      s3Key: result.key!,
-      s3Url: result.url!,
+      storagePath: uploadResult.path,
+      publicUrl: uploadResult.publicUrl,
       originalFilename: filename || 'meme.png',
-      fileSize: imageBuffer.length,
-      contentType: filename ? getContentType(filename) : 'image/png',
+      fileSize: Math.round(estimatedSize),
+      contentType: getContentType(filename || 'meme.png'),
     })
+
+    if (!upload) {
+      return NextResponse.json(
+        { error: 'Failed to save upload record' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
       success: true,
-      key: result.key,
-      url: result.url,
-      uploadId: upload?.id,
+      path: uploadResult.path,
+      url: uploadResult.publicUrl,
+      uploadId: upload.id,
     })
   } catch (error) {
     console.error('Upload API error:', error)
@@ -81,17 +75,17 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const key = searchParams.get('key')
+    const id = searchParams.get('id')
 
-    if (!key) {
+    if (!id) {
       return NextResponse.json(
-        { error: 'No key provided' },
+        { error: 'No upload ID provided' },
         { status: 400 }
       )
     }
 
-    const { deleteFromS3 } = await import('@/lib/s3-upload')
-    const success = await deleteFromS3(key)
+    const { deleteMemeUpload } = await import('@/lib/supabase-service')
+    const success = await deleteMemeUpload(id)
 
     if (!success) {
       return NextResponse.json(
@@ -108,4 +102,17 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+function getContentType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const contentTypes: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    bmp: 'image/bmp',
+  }
+  return contentTypes[ext || ''] || 'image/png'
 }

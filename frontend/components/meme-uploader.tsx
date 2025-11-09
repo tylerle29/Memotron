@@ -14,7 +14,7 @@ import type { AnalysisResult } from "@/lib/mock-analyzer"
 
 export function MemeUploader() {
   const [image, setImage] = useState<string | null>(null)
-  const [s3Data, setS3Data] = useState<{ key: string; url: string; uploadId: string } | null>(null)
+  const [uploadData, setUploadData] = useState<{ path: string; url: string; uploadId: string } | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +35,7 @@ export function MemeUploader() {
     reader.onload = async (e) => {
       const imageData = e.target?.result as string
       
-      // Upload to S3
+      // Upload to Supabase Storage
       try {
         const uploadResponse = await fetch('/api/upload', {
           method: 'POST',
@@ -52,15 +52,16 @@ export function MemeUploader() {
           throw new Error('Upload failed')
         }
 
-        const uploadData = await uploadResponse.json()
-        console.log('Uploaded to S3:', uploadData.key)
+        const uploadResult = await uploadResponse.json()
+        console.log('Uploaded to Supabase Storage:', uploadResult.path)
+        console.log('Public URL:', uploadResult.url)
         
-        // Store both local preview and S3 data
+        // Store both local preview and upload data
         setImage(imageData) // For local preview
-        setS3Data({
-          key: uploadData.key,
-          url: uploadData.url,
-          uploadId: uploadData.uploadId
+        setUploadData({
+          path: uploadResult.path,
+          url: uploadResult.url,
+          uploadId: uploadResult.uploadId
         })
         
         setError(null)
@@ -94,7 +95,7 @@ export function MemeUploader() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setImage(null)
-      setS3Data(null)
+      setUploadData(null)
     } finally {
       setLoading(false)
       setShowProcessing(false)
@@ -104,7 +105,7 @@ export function MemeUploader() {
   const handleBackToUpload = () => {
     setShowResults(false)
     setImage(null)
-    setS3Data(null)
+    setUploadData(null)
     setAnalysis(null)
     setError(null)
     setUserPrompt(null)
@@ -148,7 +149,7 @@ export function MemeUploader() {
           onClose={() => {
             setShowPrompt(false)
             setImage(null)
-            setS3Data(null)
+            setUploadData(null)
           }}
         />
       )}
