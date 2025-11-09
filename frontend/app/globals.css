@@ -4,79 +4,79 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated to NVIDIA brand colors */
-  --background: #111111;
-  --foreground: #ffffff;
-  --card: #1a1a1a;
-  --card-foreground: #ffffff;
-  --popover: #1a1a1a;
-  --popover-foreground: #ffffff;
-  --primary: #76b900;
-  --primary-foreground: #111111;
-  --secondary: #2a2a2a;
+  /* Updated to bright liquid glass theme with cool tones */
+  --background: #ffffff;
+  --foreground: #1a2332;
+  --card: #f8fbff;
+  --card-foreground: #0f1419;
+  --popover: #f0f8ff;
+  --popover-foreground: #0f1419;
+  --primary: #06d9d9;
+  --primary-foreground: #0f1419;
+  --secondary: #0ea5e9;
   --secondary-foreground: #ffffff;
-  --muted: #333333;
-  --muted-foreground: #cccccc;
-  --accent: #8dd903;
-  --accent-foreground: #111111;
-  --destructive: #ff4444;
+  --muted: #64748b;
+  --muted-foreground: #475569;
+  --accent: #06d9d9;
+  --accent-foreground: #0f1419;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #333333;
-  --input: #1a1a1a;
-  --ring: #76b900;
-  --cta: #76b900;
+  --border: #e2e8f0;
+  --input: #f1f5f9;
+  --ring: #06d9d9;
+  --cta: #06d9d9;
   --cta-foreground: #ffffff;
-  --chart-1: #76b900;
-  --chart-2: #8dd903;
-  --chart-3: #cccccc;
-  --chart-4: #2a2a2a;
-  --chart-5: #333333;
-  --radius: 0.5rem;
-  --sidebar: #111111;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #76b900;
-  --sidebar-primary-foreground: #111111;
-  --sidebar-accent: #8dd903;
-  --sidebar-accent-foreground: #111111;
-  --sidebar-border: #333333;
-  --sidebar-ring: #76b900;
+  --chart-1: #06d9d9;
+  --chart-2: #0ea5e9;
+  --chart-3: #06b6d4;
+  --chart-4: #e2e8f0;
+  --chart-5: #cbd5e1;
+  --radius: 1.125rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a2332;
+  --sidebar-primary: #06d9d9;
+  --sidebar-primary-foreground: #0f1419;
+  --sidebar-accent: #0ea5e9;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #06d9d9;
 }
 
 .dark {
-  --background: #111111;
-  --foreground: #ffffff;
-  --card: #1a1a1a;
-  --card-foreground: #ffffff;
-  --popover: #1a1a1a;
-  --popover-foreground: #ffffff;
-  --primary: #76b900;
-  --primary-foreground: #111111;
-  --secondary: #2a2a2a;
-  --secondary-foreground: #ffffff;
-  --muted: #333333;
-  --muted-foreground: #cccccc;
-  --accent: #8dd903;
-  --accent-foreground: #111111;
-  --destructive: #ff4444;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: #06b6d4;
+  --primary-foreground: #0f172a;
+  --secondary: #334155;
+  --secondary-foreground: #f1f5f9;
+  --muted: #475569;
+  --muted-foreground: #cbd5e1;
+  --accent: #fbbf24;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #333333;
-  --input: #1a1a1a;
-  --ring: #76b900;
-  --cta: #76b900;
+  --border: #334155;
+  --input: #1e293b;
+  --ring: #06b6d4;
+  --cta: #06b6d4;
   --cta-foreground: #ffffff;
-  --chart-1: #76b900;
-  --chart-2: #8dd903;
-  --chart-3: #cccccc;
-  --chart-4: #2a2a2a;
-  --chart-5: #333333;
-  --sidebar: #111111;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #76b900;
-  --sidebar-primary-foreground: #111111;
-  --sidebar-accent: #8dd903;
-  --sidebar-accent-foreground: #111111;
-  --sidebar-border: #333333;
-  --sidebar-ring: #76b900;
+  --chart-1: #06b6d4;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #334155;
+  --chart-5: #475569;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #06b6d4;
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #fbbf24;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #334155;
+  --sidebar-ring: #06b6d4;
 }
 
 @theme inline {
@@ -128,14 +128,14 @@
     @apply bg-background text-foreground;
   }
 
-  /* Updated soft glow to use NVIDIA green */
+  /* Updated animations for bright theme with teal accents */
   @keyframes soft-glow {
     0%,
     100% {
-      text-shadow: 0 0 8px rgba(118, 185, 0, 0.2);
+      text-shadow: 0 0 20px rgba(6, 217, 217, 0.2), 0 0 40px rgba(6, 217, 217, 0.1);
     }
     50% {
-      text-shadow: 0 0 12px rgba(118, 185, 0, 0.3);
+      text-shadow: 0 0 30px rgba(6, 217, 217, 0.3), 0 0 60px rgba(6, 217, 217, 0.15);
     }
   }
 
@@ -143,19 +143,64 @@
     animation: soft-glow 3s ease-in-out infinite;
   }
 
-  /* Glass morphism with NVIDIA green accent */
+  /* Premium frosted glass effect for light theme */
   .glass-effect {
-    background: rgba(26, 26, 26, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(118, 185, 0, 0.1);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(6, 217, 217, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
 
-  /* Professional layered shadow for depth */
+  .glass-light {
+    background: rgba(248, 251, 255, 0.6);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(6, 217, 217, 0.15);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 8px 32px rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-button {
+    background: rgba(6, 217, 217, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(6, 217, 217, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .glass-button:hover {
+    background: rgba(6, 217, 217, 0.2);
+    border-color: rgba(6, 217, 217, 0.5);
+    box-shadow: 0 8px 24px rgba(6, 217, 217, 0.15);
+  }
+
+  /* Soft shadows for subtle depth */
   .professional-shadow {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
   }
 
   .professional-shadow-lg {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 6px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 12px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .glow-shadow {
+    box-shadow: 0 0 20px rgba(6, 217, 217, 0.1), 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  @keyframes smooth-slide {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-in {
+    animation: smooth-slide 0.3s ease-out;
+  }
+
+  /* Added smooth transition utility */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
