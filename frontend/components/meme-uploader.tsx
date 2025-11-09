@@ -12,6 +12,56 @@ import { ProcessingModal } from "./processing-modal"
 import { generateMockAnalysis } from "@/lib/mock-analyzer"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
 
+import { supabase } from '@/lib/supabaseClient'
+
+async function uploadToSupabaseAndCreateAnalysis(file: File) {
+    if (!file) throw new Error('file required')
+
+    const key = `images/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
+    console.log('[Supabase] start upload', { key, name: file.name, size: file.size, type: file.type })
+
+    // upload to storage
+    const uploadRes = await supabase.storage.from('images').upload(key, file, {
+        cacheControl: '3600',
+        upsert: false,
+    })
+    console.log('[Supabase] uploadRes', uploadRes)
+    if (uploadRes.error) throw uploadRes.error
+
+    // get public url
+    const { data: urlData } = supabase.storage.from('images').getPublicUrl(key)
+    const publicUrl = urlData?.publicUrl ?? ''
+    console.log('[Supabase] publicUrl', publicUrl)
+
+    // insert metadata row into analyses table
+    const { data: inserted, error: insertError } = await supabase
+        .from('analyses')
+        .insert([{ image_key: key, image_url: publicUrl, status: 'uploaded' }])
+        .select()
+        .single()
+
+    console.log('[Supabase] insert', { inserted, insertError })
+    if (insertError) throw insertError
+
+    return { key, publicUrl, row: inserted }
+}
+
+async function handleFileAndAnalyze(file: File) {
+    try {
+        // optional: existing UI state updates (spinner/etc)
+        const { publicUrl, row } = await uploadToSupabaseAndCreateAnalysis(file)
+        // set your existing state to show results (adjust names to match your component)
+        setImage(publicUrl)
+        setAnalysis(row?.analysis ?? null)
+        setShowResults(true)
+    } catch (err) {
+        console.error('[Uploader] error', err)
+        // handle error in UI
+    } finally {
+        // cleanup spinner / UI
+    }
+}
+
 export function MemeUploader() {
   const [image, setImage] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
