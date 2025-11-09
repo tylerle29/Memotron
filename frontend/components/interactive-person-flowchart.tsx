@@ -42,6 +42,17 @@ export function InteractivePersonFlowchart({ imageUrl, detectedPersons = [] }: I
 
   const handleMouseUp = () => {
     setIsDragging(false)
+    handleFlowCreate()
+  }
+
+  const handleFlowCreate = async () => {
+      const response = await fetch("https://nonfraudulently-photoemissive-syreeta.ngrok-free.dev/api/flowreate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input: "" })
+      })
+      const data = await response.json()
+      console.log(data.output)
   }
 
   // Calculate positions for person nodes in a circle around the center
