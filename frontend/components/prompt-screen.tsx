@@ -96,12 +96,9 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Tell the AI what to focus on... (e.g., 'Explain the humor and cultural context' or 'Identify the meme template and find similar ones')"
-<<<<<<< HEAD
-          className="w-full h-32 border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none bg-white"
-=======
+
           className="w-full h-32 bg-secondary border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
           disabled={isLoading}
->>>>>>> 295f9258980b0ceba8e3a8aec9633eeb50b66f3b
         />
 
         {/* Quick Suggestions */}
