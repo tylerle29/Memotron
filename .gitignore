@@ -46,3 +46,4 @@ app-example
 
 # credentials (no leaking passwords)
 credentials.json
+.env.local
