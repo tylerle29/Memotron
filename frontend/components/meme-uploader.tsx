@@ -42,11 +42,13 @@ export function MemeUploader() {
   }
 
   const handlePromptSubmit = (prompt: string) => {
-    setUserPrompt(prompt)
+    //setUserPrompt(prompt)
     setShowPrompt(false)
     setShowProcessing(true)
     analyzeMeme()
   }
+
+
 
   const analyzeMeme = async () => {
     setLoading(true)
