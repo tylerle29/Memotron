@@ -1,16 +1,17 @@
 // lib/supabase-service.ts
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Use hardcoded values as fallback since env vars might not load properly in API routes
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://qfestqwayjkhsxzxtihr.supabase.co'
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZXN0cXdheWpraHN4enh0aWhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2NDgzMjcsImV4cCI6MjA3ODIyNDMyN30.zWUaYk3xs4rWDxiETQuyl2fRf4WbUdRl_b8_C8wjNr8'
 
 export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export interface MemeUpload {
   id: string
   user_id: string | null
-  storage_path: string  // Path in Supabase Storage
-  public_url: string    // Public URL to access the image
+  storage_path: string
+  public_url: string
   original_filename: string
   file_size?: number
   content_type?: string
@@ -18,49 +19,6 @@ export interface MemeUpload {
   analysis_result?: any
   created_at: string
   updated_at: string
-}
-
-/**
- * Upload image to Supabase Storage
- */
-export async function uploadImageToStorage(
-  file: File,
-  userId?: string
-): Promise<{ path: string; publicUrl: string } | null> {
-  try {
-    // Generate unique filename with timestamp
-    const timestamp = Date.now()
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const fileName = userId 
-      ? `${userId}/${timestamp}-${sanitizedName}`
-      : `anonymous/${timestamp}-${sanitizedName}`
-
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('meme-uploads')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false
-      })
-
-    if (error) {
-      console.error('Storage upload error:', error)
-      return null
-    }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('meme-uploads')
-      .getPublicUrl(data.path)
-
-    return {
-      path: data.path,
-      publicUrl: publicUrl
-    }
-  } catch (error) {
-    console.error('Upload error:', error)
-    return null
-  }
 }
 
 /**
@@ -72,6 +30,8 @@ export async function uploadBase64ToStorage(
   userId?: string
 ): Promise<{ path: string; publicUrl: string } | null> {
   try {
+    console.log('[Upload] Starting base64 upload...', { filename, userId })
+    
     // Convert base64 to blob
     const base64String = base64Data.replace(/^data:image\/\w+;base64,/, '')
     const byteCharacters = atob(base64String)
@@ -82,7 +42,10 @@ export async function uploadBase64ToStorage(
     }
     
     const byteArray = new Uint8Array(byteNumbers)
-    const blob = new Blob([byteArray], { type: getContentType(filename) })
+    const contentType = getContentType(filename)
+    const blob = new Blob([byteArray], { type: contentType })
+    
+    console.log('[Upload] Blob created:', { size: blob.size, type: contentType })
 
     // Generate unique filename with timestamp
     const timestamp = Date.now()
@@ -91,31 +54,37 @@ export async function uploadBase64ToStorage(
       ? `${userId}/${timestamp}-${sanitizedName}`
       : `anonymous/${timestamp}-${sanitizedName}`
 
+    console.log('[Upload] Uploading to Supabase:', fileName)
+
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
       .from('meme-uploads')
       .upload(fileName, blob, {
         cacheControl: '3600',
         upsert: false,
-        contentType: getContentType(filename)
+        contentType: contentType
       })
 
     if (error) {
-      console.error('Storage upload error:', error)
+      console.error('[Upload] Storage upload error:', error)
       return null
     }
+
+    console.log('[Upload] Upload successful:', data)
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('meme-uploads')
       .getPublicUrl(data.path)
 
+    console.log('[Upload] Public URL generated:', publicUrl)
+
     return {
       path: data.path,
       publicUrl: publicUrl
     }
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('[Upload] Upload exception:', error)
     return null
   }
 }
@@ -153,6 +122,8 @@ export async function saveMemeUpload(data: {
   contentType?: string
 }): Promise<MemeUpload | null> {
   try {
+    console.log('[DB] Saving meme upload:', data)
+    
     const { data: upload, error } = await supabase
       .from('meme_uploads')
       .insert({
@@ -166,10 +137,15 @@ export async function saveMemeUpload(data: {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('[DB] Insert error:', error)
+      throw error
+    }
+    
+    console.log('[DB] Upload saved successfully:', upload)
     return upload
   } catch (error) {
-    console.error('Error saving meme upload:', error)
+    console.error('[DB] Error saving meme upload:', error)
     return null
   }
 }
