@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Download, Share2 } from "lucide-react"
 import Image from "next/image"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
+import { InteractivePersonFlowchart } from "./interactive-person-flowchart"
 
 interface ResultsPageProps {
   imageUrl: string
@@ -126,6 +127,11 @@ export function ResultsPage({ imageUrl, analysis, onBack, userPrompt }: ResultsP
               <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">🤖 AI Explanation</h3>
               <p className="text-muted-foreground leading-relaxed">{analysis?.meaning || "Loading..."}</p>
             </Card>
+
+            <InteractivePersonFlowchart
+              imageUrl={imageUrl || "/placeholder.svg"}
+              detectedPersons={analysis?.detectedPersons}
+            />
 
             {/* Meme DNA Card */}
             <Card className="p-6 border-border bg-card glass-effect professional-shadow">

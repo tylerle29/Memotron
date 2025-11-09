@@ -12,6 +12,17 @@ export interface AnalysisResult {
   relatable: number
   humorous: number
   sarcastic: number
+  detectedPersons: Person[] // Added detected persons array
+}
+
+export interface Person {
+  id: string
+  name: string
+  confidence: number
+  thumbnail: string
+  memeAppearances: string[]
+  relatedMemes: { title: string; link: string }[]
+  timeline: { year: number; event: string }[]
 }
 
 const memeTemplates = [
@@ -89,6 +100,65 @@ function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
+const personNames = ["Drake", "Woman Yelling", "Distracted Boyfriend", "Cat Stare", "Confused Math Lady"]
+
+const personDescriptions = {
+  Drake: {
+    thumbnail: "/drake.jpg",
+    memeAppearances: ["Drake Hotline Bling", "Drake pointing", "Drake confused", "Drake approving"],
+    relatedMemes: [
+      { title: "Drake Disapproves", link: "#" },
+      { title: "Drake Approves", link: "#" },
+    ],
+    timeline: [
+      { year: 2015, event: "First appearance in Hotline Bling music video" },
+      { year: 2016, event: "Became one of the most popular meme templates" },
+      { year: 2024, event: "Still being used in modern memes" },
+    ],
+  },
+  "Woman Yelling": {
+    thumbnail: "/diverse-woman-portrait.png",
+    memeAppearances: ["Real Housewives compilation", "Woman vs cat debate", "Argument with invisible force"],
+    relatedMemes: [
+      { title: "Confused Cat", link: "#" },
+      { title: "Yelling Woman Template", link: "#" },
+    ],
+    timeline: [
+      { year: 2018, event: "Originated from Real Housewives of Beverly Hills" },
+      { year: 2019, event: "Paired with confused cat for maximum impact" },
+      { year: 2024, event: "Remains popular for expressing frustration" },
+    ],
+  },
+  "Distracted Boyfriend": {
+    thumbnail: "/boyfriend.jpg",
+    memeAppearances: ["Looking at other woman", "Comparison format", "Choice meme", "Distraction template"],
+    relatedMemes: [
+      { title: "Jealous Girlfriend", link: "#" },
+      { title: "Comparison Memes", link: "#" },
+    ],
+    timeline: [
+      { year: 2015, event: "Photographer spotted the original moment" },
+      { year: 2017, event: "Stock photo went viral as meme template" },
+      { year: 2024, event: "One of the most versatile meme formats ever" },
+    ],
+  },
+}
+
+function generateDetectedPersons(): Person[] {
+  const numPersons = getRandomNumber(2, 3)
+  const selectedNames = personNames.sort(() => 0.5 - Math.random()).slice(0, numPersons)
+
+  return selectedNames.map((name, idx) => ({
+    id: `person-${idx}`,
+    name,
+    confidence: getRandomNumber(85, 98),
+    thumbnail: (personDescriptions as any)[name]?.thumbnail || "/placeholder.svg",
+    memeAppearances: (personDescriptions as any)[name]?.memeAppearances || [],
+    relatedMemes: (personDescriptions as any)[name]?.relatedMemes || [],
+    timeline: (personDescriptions as any)[name]?.timeline || [],
+  }))
+}
+
 export function generateMockAnalysis(): AnalysisResult {
   const template = getRandomItem(memeTemplates)
   const confidence = getRandomNumber(85, 98)
@@ -110,5 +180,6 @@ export function generateMockAnalysis(): AnalysisResult {
     relatable,
     humorous,
     sarcastic,
+    detectedPersons: generateDetectedPersons(), // Include dynamic persons in analysis
   }
 }
