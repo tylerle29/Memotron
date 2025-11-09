@@ -11,6 +11,7 @@ import { Upload, Sparkles } from "lucide-react"
 import { ProcessingModal } from "./processing-modal"
 import { generateMockAnalysis } from "@/lib/mock-analyzer"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
+import { uploadMemeImageToStorage, saveMemeAnalysisToDatabase } from "@/lib/storage-helper"
 
 export function MemeUploader() {
   const [image, setImage] = useState<string | null>(null)
@@ -57,6 +58,35 @@ export function MemeUploader() {
 
       const mockAnalysis = generateMockAnalysis()
       setAnalysis(mockAnalysis)
+
+      if (image) {
+        try {
+          console.log("[v0] Starting image upload and analysis save...")
+
+          // Upload image to storage
+          const imageUrl = await uploadMemeImageToStorage(image, `meme-${Date.now()}.png`)
+
+          // Save analysis with image URL to database
+          await saveMemeAnalysisToDatabase({
+            title: mockAnalysis.template,
+            template: mockAnalysis.template,
+            caption: mockAnalysis.topText || mockAnalysis.caption,
+            meaning: mockAnalysis.meaning,
+            confidence: mockAnalysis.confidence,
+            category: mockAnalysis.category,
+            imageUrl: imageUrl,
+            userPrompt: userPrompt || undefined,
+            detectedPersons: mockAnalysis.detectedPersons,
+          })
+
+          console.log("[v0] Image and analysis saved successfully")
+        } catch (storageError) {
+          console.error("[v0] Storage/Database error:", storageError)
+          // Don't throw - allow results to display even if save fails
+          setError("Analysis complete but failed to save to database. Results still displayed locally.")
+        }
+      }
+
       setShowResults(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
