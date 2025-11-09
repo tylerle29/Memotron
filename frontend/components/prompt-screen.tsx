@@ -21,14 +21,48 @@ const QUICK_SUGGESTIONS = [
 
 export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps) {
   const [prompt, setPrompt] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleQuickSuggestion = (suggestion: string) => {
     setPrompt(suggestion)
   }
 
-  const handleAnalyze = () => {
-    if (prompt.trim()) {
+  const handleAnalyze = async () => {
+    if (!prompt.trim()) return
+    
+    setIsLoading(true)
+    try {
+      // Get the ngrok URL from environment variable
+      const ngrokUrl = process.env.NEXT_PUBLIC_NGROK_URL
+      
+      if (!ngrokUrl) {
+        console.error("NEXT_PUBLIC_NGROK_URL is not set in environment variables")
+        alert("Error: API URL not configured. Please set NEXT_PUBLIC_NGROK_URL in your .env.local file")
+        setIsLoading(false)
+        return
+      }
+
+      const response = await fetch(`${ngrokUrl}/api/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: prompt })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log("AI Output:", data.output)
+      
+      // Pass the AI response to the parent component
+      onAnalyze(data.output || prompt)
+    } catch (error) {
+      console.error("Error calling AI API:", error)
+      // Fallback to just using the prompt
       onAnalyze(prompt)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -63,6 +97,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Tell the AI what to focus on... (e.g., 'Explain the humor and cultural context' or 'Identify the meme template and find similar ones')"
           className="w-full h-32 bg-secondary border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          disabled={isLoading}
         />
 
         {/* Quick Suggestions */}
@@ -73,7 +108,8 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
               <button
                 key={suggestion}
                 onClick={() => handleQuickSuggestion(suggestion)}
-                className="px-4 py-2 bg-secondary border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors"
+                disabled={isLoading}
+                className="px-4 py-2 bg-secondary border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {suggestion}
               </button>
@@ -85,15 +121,16 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
         <div className="flex flex-col gap-3 mt-8">
           <Button
             onClick={handleAnalyze}
-            disabled={!prompt.trim()}
+            disabled={!prompt.trim() || isLoading}
             className="w-full bg-primary hover:bg-accent text-primary-foreground font-semibold py-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Analyze with AI →
+            {isLoading ? "Analyzing..." : "Analyze with AI →"}
           </Button>
           <Button
             onClick={handleSkip}
             variant="outline"
-            className="w-full border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 bg-transparent"
+            disabled={isLoading}
+            className="w-full border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Skip and analyze everything
           </Button>
