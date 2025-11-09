@@ -12,10 +12,10 @@ import { Upload, Sparkles, Brain, Zap, Eye } from "lucide-react"
 import { ProcessingModal } from "./processing-modal"
 import { generateMockAnalysis } from "@/lib/mock-analyzer"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
-import { uploadMemeImageToStorage, saveMemeAnalysisToDatabase } from "@/lib/storage-helper"
 
 export function MemeUploader() {
   const [image, setImage] = useState<string | null>(null)
+  const [uploadData, setUploadData] = useState<{ path: string; url: string; uploadId: string } | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,10 +35,58 @@ export function MemeUploader() {
     const reader = new FileReader()
     reader.onload = async (e) => {
       const imageData = e.target?.result as string
-      setImage(imageData)
-      setError(null)
-      setShowPrompt(true)
+      
+      // Upload to Supabase Storage
+      try {
+        console.log('[Frontend] Starting upload...')
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: imageData,
+            filename: file.name,
+            // Optional: add userId if you have authentication
+            // userId: user?.id
+          })
+        })
+
+        console.log('[Frontend] Upload response status:', uploadResponse.status)
+        
+        const uploadResult = await uploadResponse.json()
+        console.log('[Frontend] Upload result:', uploadResult)
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadResult.error || `Upload failed with status ${uploadResponse.status}`)
+        }
+
+        console.log('[Frontend] Uploaded to Supabase Storage:', uploadResult.path)
+        console.log('[Frontend] Public URL:', uploadResult.url)
+        
+        // Store both local preview and upload data
+        setImage(imageData) // For local preview
+        setUploadData({
+          path: uploadResult.path,
+          url: uploadResult.url,
+          uploadId: uploadResult.uploadId
+        })
+        
+        setError(null)
+        setShowPrompt(true)
+      } catch (err) {
+        console.error('[Frontend] Upload error:', err)
+        const errorMessage = err instanceof Error ? err.message : 'Failed to upload image. Please try again.'
+        setError(errorMessage)
+        setImage(null)
+        setUploadData(null)
+      }
     }
+    
+    reader.onerror = () => {
+      console.error('[Frontend] FileReader error')
+      setError('Failed to read file. Please try again.')
+    }
+    
     reader.readAsDataURL(file)
   }
 
@@ -59,39 +107,11 @@ export function MemeUploader() {
 
       const mockAnalysis = generateMockAnalysis()
       setAnalysis(mockAnalysis)
-
-      if (image) {
-        try {
-          console.log("[v0] Starting image upload and analysis save...")
-
-          // Upload image to storage
-          const imageUrl = await uploadMemeImageToStorage(image, `meme-${Date.now()}.png`)
-
-          // Save analysis with image URL to database
-          await saveMemeAnalysisToDatabase({
-            title: mockAnalysis.template,
-            template: mockAnalysis.template,
-            caption: mockAnalysis.topText || mockAnalysis.caption,
-            meaning: mockAnalysis.meaning,
-            confidence: mockAnalysis.confidence,
-            category: mockAnalysis.category,
-            imageUrl: imageUrl,
-            userPrompt: userPrompt || undefined,
-            detectedPersons: mockAnalysis.detectedPersons,
-          })
-
-          console.log("[v0] Image and analysis saved successfully")
-        } catch (storageError) {
-          console.error("[v0] Storage/Database error:", storageError)
-          // Don't throw - allow results to display even if save fails
-          setError("Analysis complete but failed to save to database. Results still displayed locally.")
-        }
-      }
-
       setShowResults(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setImage(null)
+      setUploadData(null)
     } finally {
       setLoading(false)
       setShowProcessing(false)
@@ -101,6 +121,7 @@ export function MemeUploader() {
   const handleBackToUpload = () => {
     setShowResults(false)
     setImage(null)
+    setUploadData(null)
     setAnalysis(null)
     setError(null)
     setUserPrompt(null)
@@ -144,6 +165,7 @@ export function MemeUploader() {
           onClose={() => {
             setShowPrompt(false)
             setImage(null)
+            setUploadData(null)
           }}
         />
       )}
@@ -269,6 +291,16 @@ export function MemeUploader() {
                 </div>
               </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="bg-destructive/10 border border-destructive rounded-lg p-6">
+                <p className="text-destructive font-medium">{error}</p>
+                <p className="text-destructive/70 text-sm mt-2">
+                  Check the browser console for more details.
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
