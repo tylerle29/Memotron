@@ -1,17 +1,15 @@
-import type { Metadata } from 'next'
+import type React from "react"
+import type { Metadata } from "next"
+import { Analytics } from "@vercel/analytics/next"
+import "./globals.css"
+import { Inter } from "next/font/google"
 
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
-import { Geist_Mono, Amatic_SC as V0_Font_Amatic_SC, Geist_Mono as V0_Font_Geist_Mono } from 'next/font/google'
-
-// Initialize fonts
-const _amaticSc = V0_Font_Amatic_SC({ subsets: ['latin'], weight: ["400","700"] })
-const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
+const inter = Inter({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: "MemoTron - Intelligent Meme Analysis",
+  description: "AI-powered meme analysis and detection",
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -21,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className={`${inter.className} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

@@ -62,7 +62,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Tell the AI what to focus on... (e.g., 'Explain the humor and cultural context' or 'Identify the meme template and find similar ones')"
-          className="w-full h-32 bg-secondary border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          className="w-full h-32 border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none bg-white"
         />
 
         {/* Quick Suggestions */}
@@ -73,7 +73,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
               <button
                 key={suggestion}
                 onClick={() => handleQuickSuggestion(suggestion)}
-                className="px-4 py-2 bg-secondary border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors"
+                className="px-4 py-2 border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors bg-card"
               >
                 {suggestion}
               </button>

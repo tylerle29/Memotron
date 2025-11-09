@@ -1,13 +1,14 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { MemeAnalysis } from "./meme-analysis"
 import { ResultsPage } from "./results-page"
 import { PromptScreen } from "./prompt-screen"
-import { Upload, Sparkles } from "lucide-react"
+import { Upload, Sparkles, Brain, Zap, Eye } from "lucide-react"
 import { ProcessingModal } from "./processing-modal"
 import { generateMockAnalysis } from "@/lib/mock-analyzer"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
@@ -154,27 +155,38 @@ export function MemeUploader() {
         }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {!image ? (
-          <div className="space-y-8">
-            {/* Upload Area */}
+          <div className="space-y-12">
+            {/* Hero Section with Features Grid */}
+            <section className="text-center space-y-4 mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Analyze Any Meme in Seconds</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Upload a meme and our AI will instantly detect templates, extract captions, explain meanings, and
+                analyze context with incredible accuracy.
+              </p>
+            </section>
+
+            {/* Upload Area - Prominent Card */}
             <div
               ref={dropZoneRef}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className="border-2 border-dashed border-primary/40 rounded-lg p-12 text-center cursor-pointer transition-all duration-200 hover:border-primary hover:bg-primary/5 bg-card professional-shadow-lg"
+              className="glass-light rounded-2xl p-12 text-center cursor-pointer transition-smooth hover:shadow-lg border-2 border-dashed border-primary/30 hover:border-primary/60"
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Upload className="w-10 h-10 text-foreground" />
+              <div className="flex flex-col items-center gap-6">
+                <div className="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center glow-shadow">
+                  <Upload className="w-12 h-12 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Drop your meme here</h2>
-                  <p className="text-muted-foreground text-lg">or click to browse from your device</p>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Drop your meme here</h3>
+                  <p className="text-muted-foreground text-base">or click to browse from your device</p>
                 </div>
-                <Button className="mt-4 bg-primary hover:bg-accent text-foreground font-semibold">Choose Image</Button>
+                <Button className="mt-2 bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg shadow-primary/20 transition-smooth">
+                  Choose Image
+                </Button>
               </div>
               <input
                 ref={fileInputRef}
@@ -189,17 +201,70 @@ export function MemeUploader() {
               />
             </div>
 
-            {/* Description */}
-            <div className="glass-effect rounded-lg p-8 space-y-4">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+            {/* Feature Cards Grid */}
+            <section className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: Brain,
+                  title: "Template Detection",
+                  description: "Automatically identify the meme template with AI precision",
+                },
+                {
+                  icon: Eye,
+                  title: "Caption Extraction",
+                  description: "Extract and analyze text using advanced OCR technology",
+                },
+                {
+                  icon: Zap,
+                  title: "Meaning Analysis",
+                  description: "Understand jokes, context, and cultural significance instantly",
+                },
+              ].map((feature, idx) => {
+                const IconComponent = feature.icon
+                return (
+                  <div
+                    key={idx}
+                    className="glass-light rounded-xl p-6 border border-primary/10 transition-smooth hover:border-primary/30 hover:shadow-lg"
+                  >
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <IconComponent className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
+                        <p className="text-sm text-muted-foreground">{feature.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </section>
+
+            {/* Description - Enhanced Glass Card */}
+            <div className="glass-light rounded-xl p-8 border border-primary/10">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
                 <div>
-                  <h3 className="font-semibold text-foreground text-lg mb-2">What our AI does:</h3>
+                  <h3 className="font-semibold text-foreground text-lg mb-3">What our AI does:</h3>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>✨ Automatically detect the meme's template</li>
-                    <li>✨ Extract captions using advanced OCR</li>
-                    <li>✨ Explain the joke or cultural meaning</li>
-                    <li>✨ Analyze context—even for obscure or brand new memes</li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                      Automatically detect the meme's template
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                      Extract captions using advanced OCR
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                      Explain the joke or cultural meaning
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                      Analyze context—even for obscure or brand new memes
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -209,7 +274,7 @@ export function MemeUploader() {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Image Display */}
             <div className="flex flex-col gap-4">
-              <div className="border border-border rounded-lg overflow-hidden bg-card professional-shadow-lg">
+              <div className="border border-border/60 rounded-xl overflow-hidden bg-white professional-shadow-lg">
                 <img src={image || "/placeholder.svg"} alt="Uploaded meme" className="w-full h-auto object-contain" />
               </div>
               <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="w-full">
@@ -231,7 +296,7 @@ export function MemeUploader() {
             {/* Analysis Results */}
             <div className="flex flex-col gap-4">
               {loading ? (
-                <div className="glass-effect rounded-lg p-8 flex items-center justify-center min-h-[400px]">
+                <div className="glass-light rounded-xl p-8 flex items-center justify-center min-h-[400px] border border-primary/10">
                   <div className="flex flex-col items-center gap-4">
                     <Spinner className="w-8 h-8" />
                     <p className="text-muted-foreground">Analyzing your meme...</p>

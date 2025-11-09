@@ -3,7 +3,7 @@ import { Header } from "@/components/header"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-secondary to-background">
+    <main className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50">
       <Header />
       <MemeUploader />
     </main>
