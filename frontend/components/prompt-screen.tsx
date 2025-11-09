@@ -32,7 +32,15 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
     
     setIsLoading(true)
     try {
-      const response = await fetch("https://nonrealistic-ungrimed-luvenia.ngrok-free.dev/api/respond", {
+      const image_response = await fetch("https://nonfraudulently-photoemissive-syreeta.ngrok-free.dev/api/ocr_image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: "" })
+      })
+      const text = await image_response.json();
+      console.log("image call output: ", text.text)
+
+      const response = await fetch("https://nonfraudulently-photoemissive-syreeta.ngrok-free.dev/api/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input: prompt })

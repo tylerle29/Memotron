@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Download, Share2 } from "lucide-react"
 import Image from "next/image"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
-import { InteractivePersonFlowchart } from "./interactive-person-flowchart"
+import { FlowchartData } from "@/lib/flowchart-types"
+import { Chatbot } from "./chatbot"
+import { DynamicFlowchart } from "./dynamic-flowchart"
 
 interface ResultsPageProps {
   imageUrl: string
@@ -16,6 +18,19 @@ interface ResultsPageProps {
 }
 
 export function ResultsPage({ imageUrl, analysis, onBack, userPrompt }: ResultsPageProps) {
+  const flowchartData: FlowchartData | null = analysis
+    ? {
+        central: {
+          id: "central-meme",
+          label: analysis.template,
+          imageUrl: imageUrl || "/placeholder.svg",
+          subLabel: "Original Meme",
+        },
+        branches: analysis.detectedPersons || [],
+        metadata: { radiusX: 250, radiusY: 180, minZoom: 0.5, maxZoom: 3 },
+      }
+    : null
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -50,17 +65,19 @@ export function ResultsPage({ imageUrl, analysis, onBack, userPrompt }: ResultsP
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Image */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-4">
-              <Card className="overflow-hidden border-border bg-card glass-effect professional-shadow">
-                <div className="relative w-full aspect-square bg-secondary">
-                  <Image src={imageUrl || "/placeholder.svg"} alt="Uploaded meme" fill className="object-cover" />
-                </div>
-              </Card>
-              <p className="text-center text-sm text-muted-foreground">Uploaded Image</p>
-            </div>
+          {/* Left Column - Image + Chatbot */}
+          <div className="lg:col-span-1 flex flex-col gap-4">
+            <Card className="overflow-hidden border-border bg-card glass-effect professional-shadow">
+              <div className="relative w-full aspect-square bg-secondary">
+                <Image src={imageUrl || "/placeholder.svg"} alt="Uploaded meme" fill className="object-cover" />
+              </div>
+            </Card>
+            <p className="text-center text-sm text-muted-foreground">Uploaded Image</p>
+
+            {/* Chatbot */}
+            <Chatbot />
           </div>
+
 
           {/* Right Column - Analysis */}
           <div className="lg:col-span-2 space-y-6">
@@ -128,10 +145,8 @@ export function ResultsPage({ imageUrl, analysis, onBack, userPrompt }: ResultsP
               <p className="text-muted-foreground leading-relaxed">{analysis?.meaning || "Loading..."}</p>
             </Card>
 
-            <InteractivePersonFlowchart
-              imageUrl={imageUrl || "/placeholder.svg"}
-              detectedPersons={analysis?.detectedPersons}
-            />
+            {/* Dynamic Flowchart */}
+            {flowchartData && <DynamicFlowchart flowchartData={flowchartData} />}
 
             {/* Meme DNA Card */}
             <Card className="p-6 border-border bg-card glass-effect professional-shadow">
