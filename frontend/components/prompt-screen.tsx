@@ -109,12 +109,11 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
               <button
                 key={suggestion}
                 onClick={() => handleQuickSuggestion(suggestion)}
-<<<<<<< HEAD
-                className="px-4 py-2 border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors bg-card"
-=======
+                
+
                 disabled={isLoading}
                 className="px-4 py-2 bg-secondary border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
->>>>>>> 295f9258980b0ceba8e3a8aec9633eeb50b66f3b
+
               >
                 {suggestion}
               </button>
