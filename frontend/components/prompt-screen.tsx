@@ -38,6 +38,19 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
     )
   }
 
+  const handlePromptSend = () => {
+    async function sendMessage(userText: string) {
+      const response = await fetch("https://YOUR_NGROK_URL/api/respond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: userText })
+      });
+      const data = await response.json();
+      console.log("AI Output:", data.output);
+    }
+    sendMessage(prompt);
+  }
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-card border border-border rounded-lg w-[90%] max-w-[600px] p-8 shadow-2xl shadow-black/40 relative glass-effect">
@@ -60,7 +73,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
         {/* Text Input */}
         <textarea
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e) => {setPrompt(e.target.value);handlePromptSend()}}
           placeholder="Tell the AI what to focus on... (e.g., 'Explain the humor and cultural context' or 'Identify the meme template and find similar ones')"
           className="w-full h-32 bg-secondary border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
         />
