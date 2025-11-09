@@ -2,6 +2,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { uploadToS3, validateFileSize, base64ToBuffer } from '@/lib/s3-upload'
 
+function getContentType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase()
+  const contentTypes: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    bmp: 'image/bmp',
+  }
+  return contentTypes[ext || ''] || 'image/png'
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -56,27 +69,6 @@ export async function POST(request: NextRequest) {
       url: result.url,
       uploadId: upload?.id,
     })
-  } catch (error) {
-    console.error('Upload API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-function getContentType(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase()
-  const contentTypes: Record<string, string> = {
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    png: 'image/png',
-    gif: 'image/gif',
-    webp: 'image/webp',
-    bmp: 'image/bmp',
-  }
-  return contentTypes[ext || ''] || 'image/png'
-}
   } catch (error) {
     console.error('Upload API error:', error)
     return NextResponse.json(
