@@ -4,7 +4,8 @@ An agentic AI used for translating the cultural context of memes for industry pu
 
 Inciting Reason: 
 Marketing Research involving cultural references like MEMEs are often lost between the generational gaps. Because of this, market researchers look for ways to make this process more extensive and easier. However, most agentic agents, including ChatGPT, have a difficult time deciphering the cultural context of memes. 
-<img src="https://github.com/user-attachments/assets/ac039cb5-df33-4460-8846-05d28449b3ac" alt="Image 1" style="border: 5px solid #000; padding: 10px;">
+
+<img src="https://github.com/user-attachments/assets/ac039cb5-df33-4460-8846-05d28449b3ac" alt="Image 1" style="border: 5px solid black; padding: 10px;">
 
 <img src="https://github.com/user-attachments/assets/f18c90c1-fe6d-4669-b827-83de997aeeb5" alt="Image 2" style="border: 5px solid #000; padding: 10px;">
 
