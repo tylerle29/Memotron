@@ -7,7 +7,7 @@ import { Inter } from "next/font/google"
 const inter = Inter({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] })
 
 export const metadata: Metadata = {
-  title: "MemoTron - Intelligent Meme Analysis",
+  title: "MemeOTron - Intelligent Meme Analysis",
   description: "AI-powered meme analysis and detection",
   generator: "v0.app",
 }
