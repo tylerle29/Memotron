@@ -14,6 +14,7 @@ import type { AnalysisResult } from "@/lib/mock-analyzer"
 
 export function MemeUploader() {
   const [image, setImage] = useState<string | null>(null)
+  const [s3Data, setS3Data] = useState<{ key: string; url: string; uploadId: string } | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,9 +34,41 @@ export function MemeUploader() {
     const reader = new FileReader()
     reader.onload = async (e) => {
       const imageData = e.target?.result as string
-      setImage(imageData)
-      setError(null)
-      setShowPrompt(true)
+      
+      // Upload to S3
+      try {
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: imageData,
+            filename: file.name,
+            // Optional: add userId if you have authentication
+            // userId: user?.id
+          })
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Upload failed')
+        }
+
+        const uploadData = await uploadResponse.json()
+        console.log('Uploaded to S3:', uploadData.key)
+        
+        // Store both local preview and S3 data
+        setImage(imageData) // For local preview
+        setS3Data({
+          key: uploadData.key,
+          url: uploadData.url,
+          uploadId: uploadData.uploadId
+        })
+        
+        setError(null)
+        setShowPrompt(true)
+      } catch (err) {
+        console.error('Upload error:', err)
+        setError('Failed to upload image. Please try again.')
+      }
     }
     reader.readAsDataURL(file)
   }
@@ -61,6 +94,7 @@ export function MemeUploader() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setImage(null)
+      setS3Data(null)
     } finally {
       setLoading(false)
       setShowProcessing(false)
@@ -70,6 +104,7 @@ export function MemeUploader() {
   const handleBackToUpload = () => {
     setShowResults(false)
     setImage(null)
+    setS3Data(null)
     setAnalysis(null)
     setError(null)
     setUserPrompt(null)
@@ -113,6 +148,7 @@ export function MemeUploader() {
           onClose={() => {
             setShowPrompt(false)
             setImage(null)
+            setS3Data(null)
           }}
         />
       )}
@@ -174,6 +210,13 @@ export function MemeUploader() {
                 </div>
               </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="bg-destructive/10 border border-destructive rounded-lg p-6">
+                <p className="text-destructive font-medium">{error}</p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
