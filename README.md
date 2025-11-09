@@ -4,6 +4,8 @@ An agentic AI used for translating the cultural context of memes for industry pu
 
 Inciting Reason: 
 Marketing Research involving cultural references like MEMEs are often lost between the generational gaps. Because of this, market researchers look for ways to make this process more extensive and easier. However, most agentic agents, including ChatGPT, have a difficult time deciphering the cultural context of memes. 
+<img width="887" height="433" alt="Screenshot from 2025-11-09 08-49-54" src="https://github.com/user-attachments/assets/ac039cb5-df33-4460-8846-05d28449b3ac" />
+<img width="887" height="433" alt="Screenshot from 2025-11-09 08-45-25" src="https://github.com/user-attachments/assets/f18c90c1-fe6d-4669-b827-83de997aeeb5" />
 
 Solution:
 We implement a unique agentic multimodal workflow with Nemotron-Nano-4B-v1.1 as the primary driver, webscraping, and OCR models.
