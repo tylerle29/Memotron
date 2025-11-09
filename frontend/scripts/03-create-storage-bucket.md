@@ -7,7 +7,7 @@ You need to create a storage bucket in your Supabase dashboard for storing meme 
 1. Go to your Supabase project dashboard
 2. Navigate to **Storage** in the left sidebar
 3. Click **Create a new bucket**
-4. Name it: `meme-images`
+4. Name it: `images`
 5. Under **Access settings**, select **Public** (so images can be viewed without authentication)
 6. Click **Create bucket**
 

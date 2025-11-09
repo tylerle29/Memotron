@@ -3,7 +3,7 @@
 import { supabase } from "./supabaseClient"
 
 // STEP 1: Upload image to Supabase Storage
-// This function converts the base64 image to a file and uploads it to the 'meme-images' bucket
+// This function converts the base64 image to a file and uploads it to the 'images' bucket
 export async function uploadMemeImageToStorage(base64Image: string, fileName: string): Promise<string> {
   try {
     const base64Data = base64Image.split(",")[1] // Remove data:image/png;base64, prefix
@@ -15,10 +15,10 @@ export async function uploadMemeImageToStorage(base64Image: string, fileName: st
     const byteArray = new Uint8Array(byteNumbers)
     const blob = new Blob([byteArray], { type: "image/png" })
 
-    // Upload to Supabase Storage bucket 'meme-images'
+    // Upload to Supabase Storage bucket 'images'
     const uniqueFileName = `${Date.now()}-${fileName}`
     const { data, error } = await supabase.storage
-      .from("meme-images") // Bucket name (must be created in Supabase dashboard)
+      .from("images") // Bucket name (must be created in Supabase dashboard)
       .upload(uniqueFileName, blob, {
         cacheControl: "3600",
         upsert: false,
@@ -29,7 +29,7 @@ export async function uploadMemeImageToStorage(base64Image: string, fileName: st
       throw new Error(`Failed to upload image: ${error.message}`)
     }
 
-    const { data: publicUrlData } = supabase.storage.from("meme-images").getPublicUrl(uniqueFileName)
+    const { data: publicUrlData } = supabase.storage.from("images").getPublicUrl(uniqueFileName)
 
     console.log("[v0] Image uploaded successfully:", publicUrlData.publicUrl)
     return publicUrlData.publicUrl
