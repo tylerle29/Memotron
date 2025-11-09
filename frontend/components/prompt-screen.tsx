@@ -20,39 +20,15 @@ const QUICK_SUGGESTIONS = [
 ]
 
 export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps) {
-  const [prompt, setPrompt] = useState("is this the input text")
-  const [isLoading, setIsLoading] = useState(false)
+  const [prompt, setPrompt] = useState("")
 
   const handleQuickSuggestion = (suggestion: string) => {
     setPrompt(suggestion)
   }
 
-  const handleAnalyze = async () => {
-    if (!prompt.trim()) return
-    
-    setIsLoading(true)
-    try {
-      const response = await fetch("https://nonrealistic-ungrimed-luvenia.ngrok-free.dev/api/respond", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: prompt })
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      console.log("AI Output:", data.output)
-      
-      // Pass the AI response to the parent component
-      onAnalyze(data.output || prompt)
-    } catch (error) {
-      console.error("Error calling AI API:", error)
-      // Fallback to just using the prompt
+  const handleAnalyze = () => {
+    if (prompt.trim()) {
       onAnalyze(prompt)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -60,9 +36,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
     onAnalyze(
       "Provide a comprehensive analysis of this meme including the template, extracted text, humor explanation, and cultural context.",
     )
-    handleAnalyze()
   }
-
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
@@ -89,7 +63,6 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Tell the AI what to focus on... (e.g., 'Explain the humor and cultural context' or 'Identify the meme template and find similar ones')"
           className="w-full h-32 bg-secondary border border-border text-foreground placeholder-muted-foreground rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-          disabled={isLoading}
         />
 
         {/* Quick Suggestions */}
@@ -100,8 +73,7 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
               <button
                 key={suggestion}
                 onClick={() => handleQuickSuggestion(suggestion)}
-                disabled={isLoading}
-                className="px-4 py-2 bg-secondary border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-secondary border border-border text-muted-foreground rounded-full text-sm hover:border-primary hover:text-primary transition-colors"
               >
                 {suggestion}
               </button>
@@ -113,16 +85,15 @@ export function PromptScreen({ imageUrl, onAnalyze, onClose }: PromptScreenProps
         <div className="flex flex-col gap-3 mt-8">
           <Button
             onClick={handleAnalyze}
-            disabled={!prompt.trim() || isLoading}
+            disabled={!prompt.trim()}
             className="w-full bg-primary hover:bg-accent text-primary-foreground font-semibold py-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Analyzing..." : "Analyze with AI →"}
+            Analyze with AI →
           </Button>
           <Button
             onClick={handleSkip}
             variant="outline"
-            disabled={isLoading}
-            className="w-full border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 bg-transparent"
           >
             Skip and analyze everything
           </Button>

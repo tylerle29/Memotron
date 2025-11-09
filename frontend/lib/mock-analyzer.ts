@@ -25,6 +25,17 @@ export interface Person {
   timeline: { year: number; event: string }[]
 }
 
+export interface MemeRecord {
+  id?: string
+  title: string
+  template: string
+  caption: string
+  meaning: string
+  confidence: number
+  category: string
+  created_at?: string
+}
+
 const memeTemplates = [
   {
     template: "Drake Hotline Bling",

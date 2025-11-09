@@ -11,60 +11,10 @@ import { Upload, Sparkles } from "lucide-react"
 import { ProcessingModal } from "./processing-modal"
 import { generateMockAnalysis } from "@/lib/mock-analyzer"
 import type { AnalysisResult } from "@/lib/mock-analyzer"
-
-import { supabase } from '@/lib/supabaseClient'
-
-async function uploadToSupabaseAndCreateAnalysis(file: File) {
-    if (!file) throw new Error('file required')
-
-    const key = `images/${Date.now()}_${file.name.replace(/\s+/g, '_')}`
-    console.log('[Supabase] start upload', { key, name: file.name, size: file.size, type: file.type })
-
-    // upload to storage
-    const uploadRes = await supabase.storage.from('images').upload(key, file, {
-        cacheControl: '3600',
-        upsert: false,
-    })
-    console.log('[Supabase] uploadRes', uploadRes)
-    if (uploadRes.error) throw uploadRes.error
-
-    // get public url
-    const { data: urlData } = supabase.storage.from('images').getPublicUrl(key)
-    const publicUrl = urlData?.publicUrl ?? ''
-    console.log('[Supabase] publicUrl', publicUrl)
-
-    // insert metadata row into analyses table
-    const { data: inserted, error: insertError } = await supabase
-        .from('analyses')
-        .insert([{ image_key: key, image_url: publicUrl, status: 'uploaded' }])
-        .select()
-        .single()
-
-    console.log('[Supabase] insert', { inserted, insertError })
-    if (insertError) throw insertError
-
-    return { key, publicUrl, row: inserted }
-}
-
-async function handleFileAndAnalyze(file: File) {
-    try {
-        // optional: existing UI state updates (spinner/etc)
-        const { publicUrl, row } = await uploadToSupabaseAndCreateAnalysis(file)
-        // set your existing state to show results (adjust names to match your component)
-        setImage(publicUrl)
-        setAnalysis(row?.analysis ?? null)
-        setShowResults(true)
-    } catch (err) {
-        console.error('[Uploader] error', err)
-        // handle error in UI
-    } finally {
-        // cleanup spinner / UI
-    }
-}
+import { uploadMemeImageToStorage, saveMemeAnalysisToDatabase } from "@/lib/storage-helper"
 
 export function MemeUploader() {
   const [image, setImage] = useState<string | null>(null)
-  const [s3Data, setS3Data] = useState<{ key: string; url: string; uploadId: string } | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -84,41 +34,9 @@ export function MemeUploader() {
     const reader = new FileReader()
     reader.onload = async (e) => {
       const imageData = e.target?.result as string
-      
-      // Upload to S3
-      try {
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image: imageData,
-            filename: file.name,
-            // Optional: add userId if you have authentication
-            // userId: user?.id
-          })
-        })
-
-        if (!uploadResponse.ok) {
-          throw new Error('Upload failed')
-        }
-
-        const uploadData = await uploadResponse.json()
-        console.log('Uploaded to S3:', uploadData.key)
-        
-        // Store both local preview and S3 data
-        setImage(imageData) // For local preview
-        setS3Data({
-          key: uploadData.key,
-          url: uploadData.url,
-          uploadId: uploadData.uploadId
-        })
-        
-        setError(null)
-        setShowPrompt(true)
-      } catch (err) {
-        console.error('Upload error:', err)
-        setError('Failed to upload image. Please try again.')
-      }
+      setImage(imageData)
+      setError(null)
+      setShowPrompt(true)
     }
     reader.readAsDataURL(file)
   }
@@ -140,11 +58,39 @@ export function MemeUploader() {
 
       const mockAnalysis = generateMockAnalysis()
       setAnalysis(mockAnalysis)
+
+      if (image) {
+        try {
+          console.log("[v0] Starting image upload and analysis save...")
+
+          // Upload image to storage
+          const imageUrl = await uploadMemeImageToStorage(image, `meme-${Date.now()}.png`)
+
+          // Save analysis with image URL to database
+          await saveMemeAnalysisToDatabase({
+            title: mockAnalysis.template,
+            template: mockAnalysis.template,
+            caption: mockAnalysis.topText || mockAnalysis.caption,
+            meaning: mockAnalysis.meaning,
+            confidence: mockAnalysis.confidence,
+            category: mockAnalysis.category,
+            imageUrl: imageUrl,
+            userPrompt: userPrompt || undefined,
+            detectedPersons: mockAnalysis.detectedPersons,
+          })
+
+          console.log("[v0] Image and analysis saved successfully")
+        } catch (storageError) {
+          console.error("[v0] Storage/Database error:", storageError)
+          // Don't throw - allow results to display even if save fails
+          setError("Analysis complete but failed to save to database. Results still displayed locally.")
+        }
+      }
+
       setShowResults(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       setImage(null)
-      setS3Data(null)
     } finally {
       setLoading(false)
       setShowProcessing(false)
@@ -154,7 +100,6 @@ export function MemeUploader() {
   const handleBackToUpload = () => {
     setShowResults(false)
     setImage(null)
-    setS3Data(null)
     setAnalysis(null)
     setError(null)
     setUserPrompt(null)
@@ -198,7 +143,6 @@ export function MemeUploader() {
           onClose={() => {
             setShowPrompt(false)
             setImage(null)
-            setS3Data(null)
           }}
         />
       )}
@@ -260,13 +204,6 @@ export function MemeUploader() {
                 </div>
               </div>
             </div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="bg-destructive/10 border border-destructive rounded-lg p-6">
-                <p className="text-destructive font-medium">{error}</p>
-              </div>
-            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8">
